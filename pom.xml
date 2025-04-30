@@ -8,15 +8,20 @@
 	<packaging>mule-application</packaging>
 
 	<name>p-test-lbulnesjimenez</name>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-		<app.runtime>4.9.3:3:java17</app.runtime>
+		<app.runtime>4.9.3:3e-java17</app.runtime>
 		<mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
 	</properties>
-
+	<distributionManagement>
+		<repository>
+			<id>anypoint-exchange</id>
+			<name>Anypoint Exchange Repository</name>
+			<url>https://maven.anypoint.mulesoft.com/api/v3/organizations/d36a1128-e322-46b8-b0ff-0e2971ea1aea/maven</url>
+			<layout>default</layout>
+		</repository>
+	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
@@ -47,7 +52,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.mule.connectors</groupId>
@@ -71,7 +75,13 @@
 		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-apikit-module</artifactId>
-			<version>1.11.5</version>
+			<version>1.11.4</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.connectors</groupId>
+			<artifactId>mule-salesforce-connector</artifactId>
+			<version>11.0.0</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
@@ -81,7 +91,6 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 	</dependencies>
-
 	<repositories>
 		<repository>
 			<id>anypoint-exchange-v3</id>
@@ -96,7 +105,6 @@
 			<layout>default</layout>
 		</repository>
 	</repositories>
-
 	<pluginRepositories>
 		<pluginRepository>
 			<id>mulesoft-releases</id>
@@ -108,5 +116,4 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-
 </project>
