@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.mycompany</groupId>
+	<groupId>10761b83-acdc-4c34-9569-51dd9bd044de</groupId>
 	<artifactId>p-test-lbulnesjimenez-imp</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<app.runtime>4.9.3</app.runtime>
+		<app.runtime>4.9.3:3:java17</app.runtime>
 		<mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
 	</properties>
 
@@ -25,25 +25,25 @@
 				<version>3.2.0</version>
 			</plugin>
 			<plugin>
-			  <groupId>org.mule.tools.maven</groupId>
-			  <artifactId>mule-maven-plugin</artifactId>
-			  <version>${mule.maven.plugin.version}</version>
-			  <extensions>true</extensions>
-			  <configuration>
-			    <classifier>mule-application</classifier>
-			    <cloudhub2Deployment>
-			      <uri>https://anypoint.mulesoft.com</uri>
-			      <provider>MC</provider>
-			      <environment>Sandbox</environment>
-			      <target>Cloudhub-US-East-2</target>
-			      <muleVersion>${app.runtime}</muleVersion>
-			      <username>${anypoint.username}</username>
-			      <password>${anypoint.password}</password>
-			      <applicationName>${project.artifactId}</applicationName>
-			      <replicas>1</replicas>
-			      <vCores>0.1</vCores>
-			    </cloudhub2Deployment>
-			  </configuration>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>mule-maven-plugin</artifactId>
+				<version>${mule.maven.plugin.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<cloudhub2Deployment>
+						<uri>https://anypoint.mulesoft.com</uri>
+						<provider>MC</provider>
+						<environment>Sandbox</environment>
+						<target>Cloudhub-US-East-2</target>
+						<muleVersion>${app.runtime}</muleVersion>
+						<username>${{ secrets.ANYPOINT_PLATFORM_USERNAME }}</username>
+						<password>${{ secrets.ANYPOINT_PLATFORM_PASSWORD }}</password>
+						<applicationName>s-test-lbulnesjimenez</applicationName>
+						<replicas>1</replicas>
+						<vCores>0.1</vCores>
+					</cloudhub2Deployment>
+					<classifier>---- select project type ----</classifier>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

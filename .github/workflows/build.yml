@@ -1,88 +1,45 @@
-name: Build and Deploy to Sandbox
-
+name: CI - Deploy to CloudHub
+ 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+    branches:
+      - main
+ 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+ 
     steps:
-      - name: Checkout this repo
+      - name: Checkout project
         uses: actions/checkout@v3
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Set up JDK 17
+ 
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
-          java-version: 17  # Mule 4.9 LTS requiere Java 17 
-
-      - name: Configure Maven settings.xml for Anypoint Exchange
+          java-version: '17'
+          distribution: 'temurin'
+ 
+      - name: Set up Maven settings.xml
         run: |
           mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml <<EOF
-          <settings>
+          cat <<EOF > ~/.m2/settings.xml
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                        https://maven.apache.org/xsd/settings-1.0.0.xsd">
             <servers>
               <server>
                 <id>anypoint-exchange-v3</id>
-                <username>${{ secrets.anypoint_platform_username }}</username>
-                <password>${{ secrets.anypoint_platform_password }}</password>
+                <username>${{ secrets.ANYPOINT_PLATFORM_USERNAME }}</username>
+                <password>${{ secrets.ANYPOINT_PLATFORM_PASSWORD }}</password>
               </server>
             </servers>
           </settings>
           EOF
-
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
-
-      - name: Stamp artifact file name with commit hash
-        run: |
-          artifact=$(ls target/*.jar | head -1)
-          commitHash=$(git rev-parse --short "$GITHUB_SHA")
-          mv "$artifact" "$(dirname "$artifact")/$(basename "$artifact" .jar)-$commitHash.jar"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts
-          path: target/*.jar
-
-      - name: Build for Exchange
-        run: mvn -B -DskipTests package
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: artifacts
-
+ 
+       
+      - name: Print Mule runtime version
+        run: mvn help:evaluate -Dexpression=mule.runtime.version -q -DforceStdout
+ 
       - name: Deploy to CloudHub
-        env:
-          anypoint_username: ${{ secrets.anypoint_platform_username }}
-          anypoint_password: ${{ secrets.anypoint_platform_password }}
-        run: |
-          artifact=$(ls artifacts/*.jar | head -1)
-          # El flag -DmuleDeploy activa la sección <cloudhub2Deployment> en el POM :contentReference[oaicite:2]{index=2}
-          mvn -B deploy -DmuleDeploy \
-              -Danypoint.username="$anypoint_username" \
-              -Danypoint.password="$anypoint_password" \
-              --file pom.xml
+        run: mvn clean deploy -X -DmuleDeploy -Danypoint.username=${{ secrets.ANYPOINT_PLATFORM_USERNAME }} -Danypoint.password=${{ secrets.ANYPOINT_PLATFORM_PASSWORD }} -Danypoint.environment=Sandbox
